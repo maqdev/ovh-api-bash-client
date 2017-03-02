@@ -134,6 +134,7 @@ help()
     echo "  --url <url>         : the API URL to call, for example /domains (default is /me)"
     echo "  --method <method>   : the HTTP method to use, for example POST (default is GET)"
     echo "  --data <JSON data>  : the data body to send with the request"
+    echo "  --file <file with JSON data>  : the file with data body to send with the request"
     echo "  --target <$( echo ${TARGETS[@]} | sed 's/\s/|/g' )>    : the target API (default is EU)"
     echo "  --init              : to initialize the consumer key"
     echo "  --initApp           : to initialize the API application"
@@ -148,6 +149,10 @@ parseArguments()
         --data)
             shift
             POST_DATA=$1
+            ;;
+        --file)
+            shift
+            POST_DATA=$(<$1)
             ;;
         --init)
             initApplication
