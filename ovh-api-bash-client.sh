@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 # DEFAULT CONFIG
 OVH_CONSUMER_KEY=""
 OVH_APP_KEY=""
@@ -28,7 +29,7 @@ TARGET="EU"
 TIME=""
 SIGDATA=""
 POST_DATA=""
-
+EXIT_CODE=0
 
 isTargetValid()
 {
@@ -128,7 +129,7 @@ updateSignData()
 
 help()
 {
-    echo 
+    echo
     echo "Help: possible arguments are:"
     echo "  --url <url>         : the API URL to call, for example /domains (default is /me)"
     echo "  --method <method>   : the HTTP method to use, for example POST (default is GET)"
@@ -195,23 +196,26 @@ request()
     RESPONSE_STATUS=$(echo "$RESPONSE" | sed -n '$p')
     RESPONSE_CONTENT=$(echo "$RESPONSE" | sed '$d')
     echo "$RESPONSE_STATUS $RESPONSE_CONTENT"
+    if [ "$RESPONSE_STATUS" -gt "399" ]; then
+    	EXIT_CODE=2
+    fi
 }
 
 getJSONFieldString()
 {
     JSON="$1"
     FIELD="$2"
-    RESULT=$(echo $JSON | $CURRENT_PATH/$LIBS/JSON.sh | grep "\[\"$FIELD\"\]" | sed -r "s/\[\"$FIELD\"\]\s+(.*)/\1/")
+    RESULT=$(echo $JSON | $CURRENT_PATH/JSON.sh | grep "\[\"$FIELD\"\]" | sed -r "s/\[\"$FIELD\"\]\s+(.*)/\1/")
     echo ${RESULT:1:${#RESULT}-2}
 }
 
 main()
 {
     parseArguments "$@"
-    
+
     initApplication
     initConsumerKey
-    
+
     if [ -z $OVH_APP_KEY ] && [ -z $OVH_APP_SECRET ]
     then
         echo -e "No application is defined for target $TARGET, please call to initialize it:\n$0 --initApp"
@@ -225,4 +229,4 @@ main()
 
 
 main "$@"
-
+exit $EXIT_CODE
